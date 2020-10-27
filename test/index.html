@@ -11,15 +11,18 @@
   <script src="../dist/openssl.js"></script>
   <script>
     openssl.init().then(mod => {
-      let a = ''
-      for (let i = 0; i < 1000000; i++) {
-        a += 'a'
+      const buf = new Uint8Array(65536000)
+      for (let i = 0; i < 1000; i++) {
+        let a = new Uint8Array(65536)
+        window.crypto.getRandomValues(a)
+        buf.set(a, i * 65536)
       }
+      const str = new TextDecoder('ascii').decode(buf)
       console.time('wasm')
-      console.log(mod.md5(a))
+      console.log(mod.md5(str))
       console.timeEnd('wasm')
       console.time('js')
-      console.log(CryptoJS.MD5(a).toString())
+      console.log(CryptoJS.MD5(str).toString())
       console.timeEnd('js')
     })
   </script>
