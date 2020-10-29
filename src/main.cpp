@@ -1,6 +1,5 @@
 #include <cstring>
 #include "md5.hpp"
-#include "openssl/err.h"
 
 #include <emscripten/bind.h>
 
@@ -17,7 +16,7 @@ class JSMD5 {
 
 void JSMD5::update(const std::string& data) {
   if (!md5_.update(data)) {
-    emscripten::val::global("Error").new_(std::string(ERR_error_string(ERR_get_error(), nullptr))).throw_();
+    emscripten::val::global("Error").new_(std::string("MD5#update failed")).throw_();
   }
 }
 
