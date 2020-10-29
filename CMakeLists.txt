@@ -2,16 +2,11 @@ cmake_minimum_required(VERSION 3.6)
 
 project(openssl)
 
-set(EXE_NAME openssl)
+file(GLOB_RECURSE EXE_SOURCE_FILES "src/*.cpp" "src/*.c")
 
-set(LIB_SOURCE_FILES
-  src/main.cpp
-  src/md5.cpp
-)
+add_executable(${TARGET_NAME} ${EXE_SOURCE_FILES})
 
-add_executable(${EXE_NAME} ${LIB_SOURCE_FILES})
-
-target_link_options(${EXE_NAME} PRIVATE
+target_link_options(${TARGET_NAME} PRIVATE
   # -Wl,--shared-memory
   # -pthread
   --bind
@@ -20,7 +15,7 @@ target_link_options(${EXE_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/pre.js
   --extern-post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js)
 
-set_target_properties(${EXE_NAME} PROPERTIES CXX_STANDARD 11)
+set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 11)
 
 # set(CMAKE_EXECUTABLE_SUFFIX ".mjs")
 
@@ -44,8 +39,10 @@ else()
   endforeach()
 endif()
 
-target_include_directories(${EXE_NAME} PRIVATE "include")
+target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(${EXE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.a ${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.a)
+target_link_libraries(${TARGET_NAME} PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.a")
 
-target_compile_options(${EXE_NAME} PRIVATE -sDISABLE_EXCEPTION_CATCHING=0)
+target_compile_options(${TARGET_NAME} PRIVATE -sDISABLE_EXCEPTION_CATCHING=0)

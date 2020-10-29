@@ -1,24 +1,16 @@
 /* eslint-disable */
 
 (function (root, factory) {
-  function makeESModule (m) {
-    if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-      try { Object.defineProperty(m, Symbol.toStringTag, { value: 'Module' }); } catch (_) {}
-    }
-    try { Object.defineProperty(m, '__esModule', { value: true });  } catch (_) { m.__esModule = true; }
-    try { Object.defineProperty(m, 'default', { enumerable: true, value: m }); } catch (_) { m['default'] = m; }
-    return m;
-  }
   var name = 'openssl';
   var _process = root && root.process;
   if(typeof exports === 'object' && typeof module === 'object') {
-    module.exports = makeESModule(factory(require('@tybys/native-require').tryGetRequireFunction(), _process));
+    module.exports = factory(require('@tybys/native-require').tryGetRequireFunction(), _process);
   } else if(typeof define === 'function' && define.amd) {
     define(['@tybys/native-require'], function (nr) {
-      return makeESModule(factory(nr.tryGetRequireFunction(), _process));
+      return factory(nr.tryGetRequireFunction(), _process);
     });
   } else if(typeof exports === 'object') {
-    exports[name] = makeESModule(factory(require('@tybys/native-require').tryGetRequireFunction(), _process));
+    exports[name] = factory(require('@tybys/native-require').tryGetRequireFunction(), _process);
   } else {
     root[name] = factory(root.require, _process);
   }
@@ -38,4 +30,4 @@
   }
 
   return g || defaultValue;
-})(this), function (require, process) {
+})(this))

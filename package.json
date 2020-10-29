@@ -1,0 +1,35 @@
+{
+  "name": "@tybys/openssl",
+  "version": "0.0.0",
+  "description": "",
+  "typings": "./dist/openssl.d.ts",
+  "module": "./dist/openssl.js",
+  "main": "./dist/openssl.js",
+  "scripts": {
+    "build": "node ./build.js"
+  },
+  "keywords": [
+    "wasm",
+    "openssl"
+  ],
+  "author": "toyobayashi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toyobayashi/wasm-openssl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/toyobayashi/wasm-openssl/issues"
+  },
+  "homepage": "https://github.com/toyobayashi/wasm-openssl#readme",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "terser": "^5.3.8",
+    "webpack": "^4.44.2"
+  },
+  "dependencies": {
+    "@tybys/native-require": "^3.0.0"
+  }
+}

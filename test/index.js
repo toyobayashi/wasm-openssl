@@ -1,3 +1,5 @@
+/// <reference path="../dist/openssl.d.ts" />
+
 (function () {
   
   const init = openssl.default
