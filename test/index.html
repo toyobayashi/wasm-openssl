@@ -9,22 +9,6 @@
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/core.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/md5.min.js"></script>
   <script src="../dist/openssl.js"></script>
-  <script>
-    openssl.init().then(mod => {
-      const buf = new Uint8Array(65536000)
-      for (let i = 0; i < 1000; i++) {
-        let a = new Uint8Array(65536)
-        window.crypto.getRandomValues(a)
-        buf.set(a, i * 65536)
-      }
-      const str = new TextDecoder('ascii').decode(buf)
-      console.time('wasm')
-      console.log(mod.md5(str))
-      console.timeEnd('wasm')
-      console.time('js')
-      console.log(CryptoJS.MD5(str).toString())
-      console.timeEnd('js')
-    })
-  </script>
+  <script src="index.js"></script>
 </body>
 </html>

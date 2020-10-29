@@ -1,25 +1,53 @@
-#include <string>
-#include <cstdio>
-#include "openssl/md5.h"
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
+#include <cstring>
+#include "md5.hpp"
+#include "openssl/err.h"
 
-std::string js_md5(const std::string& input) {
-  MD5_CTX ctx;
-  int r = MD5_Init(&ctx); if (!r) return "";
-  r = MD5_Update(&ctx, &(input[0]), input.length()); if (!r) return "";
-  unsigned char hex[MD5_DIGEST_LENGTH] = { 0 };
-  MD5_Final(hex, &ctx);
-  std::string a = "";
-  char t[3] = { 0 };
+#include <emscripten/bind.h>
+
+namespace wasmopenssl {
+
+class JSMD5 {
+ private:
+  MD5 md5_;
+ public:
+  void update(const std::string& data);
+  emscripten::val final() const;
+  std::string digest() const;
+};
+
+void JSMD5::update(const std::string& data) {
+  if (!md5_.update(data)) {
+    emscripten::val::global("Error").new_(std::string(ERR_error_string(ERR_get_error(), nullptr))).throw_();
+  }
+}
+
+emscripten::val JSMD5::final() const {
+  std::vector<uint8_t> res = md5_.final();
+  return emscripten::val(emscripten::typed_memory_view(res.size(), res.data()));
+}
+std::string JSMD5::digest() const {
+  return md5_.digest();
+}
+
+static std::string md5(const std::string& data) {
+  uint8_t md[MD5_DIGEST_LENGTH];
+  ::MD5((const unsigned char*)&(data[0]), data.length(), md);
+  char r[MD5_DIGEST_LENGTH * 2 + 1];
+  memset(r, 0, MD5_DIGEST_LENGTH * 2 + 1);
   for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
-    sprintf(t, "%02x", hex[i]);
-    a += t;
+    sprintf(r + i * 2, "%02x", md[i]);
   }
 
-  return a;
+  return r;
 }
 
 EMSCRIPTEN_BINDINGS(openssl) {
-  emscripten::function("md5", js_md5);
+  emscripten::class_<JSMD5>("MD5")
+    .constructor<>()
+    .function("update", &JSMD5::update, emscripten::allow_raw_pointers())
+    .function("final", &JSMD5::final)
+    .function("digest", &JSMD5::digest);
+  emscripten::function("md5", md5);
+}
+
 }

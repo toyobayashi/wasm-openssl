@@ -6,6 +6,7 @@ set(EXE_NAME openssl)
 
 set(LIB_SOURCE_FILES
   src/main.cpp
+  src/md5.cpp
 )
 
 add_executable(${EXE_NAME} ${LIB_SOURCE_FILES})
