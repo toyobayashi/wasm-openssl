@@ -1,7 +1,11 @@
 /// <reference path="../dist/openssl.d.ts" />
 
 (function () {
-  
+  const CryptoJS = globalThis.CryptoJS || require('crypto-js')
+  const openssl = globalThis.openssl || require('..')
+  const getRandomValues = ((globalThis.crypto && globalThis.crypto.getRandomValues) || function (buf) {
+    buf.set(require('crypto').randomBytes(buf.byteLength))
+  }).bind(globalThis.crypto)
   const init = openssl.default
   init().then(mod => {
     console.log(openssl)
@@ -33,7 +37,7 @@
     const R = MAX * T / B
     const buf = new Uint8Array(MAX * T)
     for (let i = 0; i < T; i++) {
-      window.crypto.getRandomValues(buf.subarray(i * MAX, (i + 1) * MAX))
+      getRandomValues(buf.subarray(i * MAX, (i + 1) * MAX))
     }
     // console.log(openssl.md5(buf))
     console.time('wasm')

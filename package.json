@@ -26,6 +26,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "crypto-js": "^4.0.0",
     "terser": "^5.3.8",
     "webpack": "^4.44.2"
   },
