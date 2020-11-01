@@ -5,60 +5,21 @@
       "${env:EMSDK}/upstream/emscripten/system/include",
       "${workspaceFolder}/include"
     ],
-    "clPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.24.28314\\bin\\Hostx64\\x64\\cl.exe",
-    "emccPath": "${env:EMSDK}/upstream/emscripten/emcc",
     "defines": []
   },
   "configurations": [
     {
-      "name": "Win32",
+      "name": "Emscripten",
       "defines": [
         "${defines}"
       ],
-      "compilerPath": "${emccPath}",
-      // "intelliSenseMode": "msvc-x64",
+      "compilerPath": "${env:EMSDK}/upstream/emscripten/emcc",
+      "intelliSenseMode": "clang-x64",
       "cStandard": "c11",
       "cppStandard": "c++11",
       "includePath": [
         "${includePath}"
       ]
-    },
-    {
-      "name": "Linux",
-      "defines": [
-        "${defines}"
-      ],
-      "compilerPath": "${emccPath}",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "clang-x64",
-      "browse": {
-        "path": [
-          "${workspaceFolder}"
-        ],
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": ""
-      },
-      "includePath": [
-        "${includePath}"
-      ]
-    },
-    {
-      "name": "macOS",
-      "includePath": [
-        "${includePath}"
-      ],
-      "defines": [
-        "${defines}"
-      ],
-      "macFrameworkPath": [
-        "/System/Library/Frameworks",
-        "/Library/Frameworks"
-      ],
-      "compilerPath": "${emccPath}",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "${default}"
     }
   ],
   "version": 4

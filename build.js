@@ -7,33 +7,79 @@ const terser = require('terser')
 
 const cwd = process.cwd()
 
-function spawn (command, args, cwdPath) {
-  console.log(`[spawn] ${cwdPath}${process.platform === 'win32' ? '>' : '$'} ${command} ${args.map(a => a.indexOf(' ') !== -1 ? ('"' + a + '"') : a).join(' ')}`)
-  return new Promise((resolve, reject) => {
-    const cp = childProcess.spawn(command, args, {
-      env: process.env,
-      cwd: cwdPath || cwd,
-      stdio: 'inherit'
-    })
+function spawn (command, args, cwdPath, stdin) {
+  const argsString = args.map(a => a.indexOf(' ') !== -1 ? ('"' + a + '"') : a).join(' ')
+  console.log(`[spawn] ${cwdPath}${process.platform === 'win32' ? '>' : '$'} ${command} ${argsString}`)
+  const cp = childProcess.spawn(command, args, {
+    env: process.env,
+    cwd: cwdPath || cwd,
+    stdio: stdin ? [stdin, 'inherit', 'inherit'] : 'inherit'
+  })
+  const p = new Promise((resolve, reject) => {
     cp.once('exit', (code, reason) => {
       if (code === 0) {
         resolve()
       } else {
-        reject(new Error(`Child process exit: ${code}. Reason: ${reason}\n\n${command} ${args.join(' ')}\n`))
+        reject(new Error(`Child process exit: ${code}. Reason: ${reason}\n\n${command} ${argsString}\n`))
       }
     })
   })
+  p.cp = cp
+  return p
+}
+
+function findMakeOnWindows () {
+  const check = [
+    'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build',
+    'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build'
+  ]
+  const vcvars = process.arch === 'x64' ? 'vcvars64.bat' : 'vcvars32.bat'
+  for (let i = 0; i < check.length; i++) {
+    const p = check[i]
+    if (fs.existsSync(p)) {
+      return {
+        vcvars: path.join(p, vcvars),
+        makeProgram: 'nmake',
+        generator: 'NMake Makefiles'
+      }
+    }
+  }
+  return {
+    vcvars: '',
+    makeProgram: 'make',
+    generator: 'MinGW Makefiles'
+  }
 }
 
 async function invokeCMake (buildDir, defines) {
   fs.mkdirSync(buildDir, { recursive: true })
-  
-  const definesArgs = Object.keys(defines).map(k => `-D${k}=${defines[k]}`)
-  await spawn('cmake', [
-    ...definesArgs,
-    '-G', process.platform === 'win32' ? 'MinGW Makefiles' : 'Unix Makefiles', path.relative(buildDir, cwd)
-  ], buildDir)
-  await spawn('cmake', ['--build', '.'], buildDir)
+
+  if (process.platform === 'win32') {
+    const info = findMakeOnWindows()
+    defines.CMAKE_MAKE_PROGRAM = info.makeProgram
+    const definesArgs = Object.keys(defines).map(k => `-D${k}=${defines[k]}`)
+    const cmakeArgs = ['cmake', 
+      ...definesArgs,
+      '-G', info.generator, path.relative(buildDir, cwd)
+    ]
+    await spawn('emcmake.bat', cmakeArgs, buildDir)
+    if (info.vcvars) {
+      const p = spawn('cmd', ['/k', `@echo off`], buildDir, 'pipe')
+      p.cp.stdin.write(`call "${info.vcvars}"\r\n`)
+      p.cp.stdin.write(`cmake --build .\r\n`)
+      p.cp.stdin.write('exit %ERRORLEVEL%\r\n')
+      await p
+    } else {
+      await spawn('cmake', ['--build', '.'], buildDir)
+    }
+  } else {
+    const cmakeArgs = ['cmake', 
+      ...definesArgs,
+      '-G', 'Unix Makefiles', path.relative(buildDir, cwd)
+    ]
+    await spawn('emcmake', cmakeArgs, buildDir)
+    await spawn('cmake', ['--build', '.'], buildDir)
+  }
 }
 
 async function minify () {
@@ -66,17 +112,17 @@ async function main () {
 
   const files = await minify()
 
-  await invokeCMake(cmakeoutdir, {
-    CMAKE_TOOLCHAIN_FILE: path.join(process.env.EMSDK, 'upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake'),
-    CMAKE_BUILD_TYPE: mode,
-    CMAKE_MAKE_PROGRAM: 'make',
+  try {
+    await invokeCMake(cmakeoutdir, {
+      CMAKE_BUILD_TYPE: mode,
 
-    TARGET_NAME: targetName
-  })
-
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i]
-    fs.unlinkSync(f.path)
+      TARGET_NAME: targetName
+    })
+  } finally {
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i]
+      fs.unlinkSync(f.path)
+    }
   }
 
   const dist = path.join(__dirname, 'dist')
