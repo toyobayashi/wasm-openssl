@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 (function (root, factory) {
-  var name = 'openssl';
+  var name = '__target_name__';
   var _process = root && root.process;
   if(typeof exports === 'object' && typeof module === 'object') {
     module.exports = factory(require('@tybys/native-require').tryGetRequireFunction(), _process);

@@ -83,8 +83,8 @@ async function invokeCMake (buildDir, defines) {
   }
 }
 
-async function minify () {
-  const pre = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'pre.js'), 'utf8'), { ecma: 5, compress: false, mangle: true })).code
+async function minify (targetName) {
+  const pre = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'pre.js'), 'utf8'), { ecma: 5, compress: false, mangle: true })).code.replace(/__target_name__/g, targetName)
   const post = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'post.js'), 'utf8').replace(/"__export_scripts__";/g, fs.readFileSync(path.join(__dirname, 'scripts/export.js'), 'utf8')), { ecma: 5, compress: false, mangle: true })).code
   const wrapPre = `${pre.substring(0, pre.length - 2)},function(require,process){`
   const wrapPost = `return ${post}});`
@@ -111,7 +111,7 @@ async function main () {
   const cmakeoutdir = path.join(__dirname, 'cmake_build')
   const targetName = 'openssl'
 
-  const files = await minify()
+  const files = await minify(targetName)
 
   try {
     await invokeCMake(cmakeoutdir, {
@@ -130,9 +130,11 @@ async function main () {
   fs.mkdirSync(dist, { recursive: true })
   fs.copyFileSync(path.join(cmakeoutdir, `${targetName}.js`), path.join(dist, `${targetName}.js`))
   fs.copyFileSync(path.join(cmakeoutdir, `${targetName}.wasm`), path.join(dist, `${targetName}.wasm`))
-  const mapPath = path.join(cmakeoutdir, `${targetName}.wasm.map`)
-  if (fs.existsSync(mapPath)) {
-    fs.copyFileSync(mapPath, path.join(dist, `${targetName}.wasm.map`))
+  if (mode === 'Debug') {
+    const mapPath = path.join(cmakeoutdir, `${targetName}.wasm.map`)
+    if (fs.existsSync(mapPath)) {
+      fs.copyFileSync(mapPath, path.join(dist, `${targetName}.wasm.map`))
+    }
   }
 }
 
