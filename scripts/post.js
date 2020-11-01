@@ -1,5 +1,8 @@
-// function c(Module) { ... }
-;(function (onExports) {
+// function c(Module) {
+return Module;
+}
+
+return (function (onExports) {
   var Module = null;
   var exports = {};
   Object.defineProperty(exports, 'default', {
@@ -77,4 +80,6 @@
   return exports;
 })(function (exports, Module) {
 "__export_scripts__";
+});
+
 });

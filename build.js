@@ -84,16 +84,14 @@ async function invokeCMake (buildDir, defines) {
 }
 
 async function minify (targetName) {
-  const pre = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'pre.js'), 'utf8'), { ecma: 5, compress: false, mangle: true })).code.replace(/__target_name__/g, targetName)
-  const post = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'post.js'), 'utf8').replace(/"__export_scripts__";/g, fs.readFileSync(path.join(__dirname, 'scripts/export.js'), 'utf8')), { ecma: 5, compress: false, mangle: true })).code
-  const wrapPre = `${pre.substring(0, pre.length - 2)},function(require,process){var s='';try{s=document.currentScript.src}catch(_){};function c(Module){`
-  const wrapPost = `return Module}return ${post}});`
+  const pre = fs.readFileSync(path.join(__dirname, 'scripts', 'pre.js'), 'utf8').replace(/__target_name__/g, targetName)
+  const post = fs.readFileSync(path.join(__dirname, 'scripts', 'post.js'), 'utf8').replace(/"__export_scripts__";/g, fs.readFileSync(path.join(__dirname, 'scripts/export.js'), 'utf8'))
   const files = [{
     path: path.join(__dirname, 'post.js'),
-    code: wrapPost
+    code: post
    }, {
      path: path.join(__dirname, 'pre.js'),
-     code: wrapPre
+     code: pre
    }]
   for (let i = 0; i < files.length; i++) {
     const f = files[i]
@@ -126,9 +124,14 @@ async function main () {
     }
   }
 
+  const js = path.join(cmakeoutdir, `${targetName}.js`)
+  if (mode === 'Release') {
+    fs.writeFileSync(js, (await terser.minify(fs.readFileSync(js, 'utf8'), { compress: true, mangle: true })).code, 'utf8')
+  }
+
   const dist = path.join(__dirname, 'dist')
   fs.mkdirSync(dist, { recursive: true })
-  fs.copyFileSync(path.join(cmakeoutdir, `${targetName}.js`), path.join(dist, `${targetName}.js`))
+  fs.copyFileSync(js, path.join(dist, `${targetName}.js`))
   fs.copyFileSync(path.join(cmakeoutdir, `${targetName}.wasm`), path.join(dist, `${targetName}.wasm`))
   if (mode === 'Debug') {
     const mapPath = path.join(cmakeoutdir, `${targetName}.wasm.map`)

@@ -30,4 +30,9 @@
   }
 
   return g || defaultValue;
-})(this))
+})(this), function (require,process) {
+  var s = '';
+  try {
+    s = document.currentScript.src;
+  } catch (_) {}
+  function c (Module) {
