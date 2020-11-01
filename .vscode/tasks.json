@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "EMCC Debug",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "./build",
+        "Debug"
+      ],
+      "group": "build"
+    },
+    {
+      "label": "EMCC Release",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "./build",
+        "Release"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
