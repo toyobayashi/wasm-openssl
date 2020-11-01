@@ -132,7 +132,7 @@ async function main () {
   fs.copyFileSync(path.join(cmakeoutdir, `${targetName}.wasm`), path.join(dist, `${targetName}.wasm`))
   const mapPath = path.join(cmakeoutdir, `${targetName}.wasm.map`)
   if (fs.existsSync(mapPath)) {
-    fs.copyFileSync(mapPath, path.join(__dirname, `${targetName}.wasm.map`))
+    fs.copyFileSync(mapPath, path.join(dist, `${targetName}.wasm.map`))
   }
 }
 

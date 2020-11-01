@@ -32,7 +32,7 @@
     }
 
     const MAX = 65536
-    const T = 1000
+    const T = 100
     const B = 16384
     const R = MAX * T / B
     const buf = new Uint8Array(MAX * T)

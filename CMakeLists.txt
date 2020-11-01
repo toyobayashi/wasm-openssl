@@ -8,11 +8,13 @@ add_executable(${TARGET_NAME} ${EXE_SOURCE_FILES})
 
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 11)
 
-target_compile_options(${TARGET_NAME} PRIVATE
-  -sDISABLE_EXCEPTION_CATCHING=0
-)
+function(target_private_emscripten_options TARGETNAME)
+  list(REMOVE_AT ARGV 0)
+  target_compile_options(${TARGETNAME} PRIVATE ${ARGV})
+  target_link_options(${TARGETNAME} PRIVATE ${ARGV})
+endfunction(target_private_emscripten_options)
 
-target_link_options(${TARGET_NAME} PRIVATE
+target_private_emscripten_options(${TARGET_NAME}
   # -Wl,--shared-memory
   # -pthread
   --bind
@@ -34,14 +36,15 @@ target_link_libraries(${TARGET_NAME} PRIVATE
 # set(CMAKE_EXECUTABLE_SUFFIX ".mjs")
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-  target_link_options(${TARGET_NAME} PRIVATE
+  target_private_emscripten_options(${TARGET_NAME}
+    -sDISABLE_EXCEPTION_CATCHING=0
     -sSAFE_HEAP=1
   )
   foreach(var
     CMAKE_C_FLAGS_DEBUG
     CMAKE_CXX_FLAGS_DEBUG
   )
-    string(REPLACE "-g" "-g4 --source-map-base http://127.0.0.1:8096/" ${var} "${${var}}")
+    string(REPLACE "-g" "-g4 --source-map-base ./" ${var} "${${var}}")
     message(STATUS "${var}:${${var}}")
   endforeach()
 else()
