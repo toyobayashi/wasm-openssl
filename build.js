@@ -57,6 +57,7 @@ async function invokeCMake (buildDir, defines) {
   if (process.platform === 'win32') {
     const info = findMakeOnWindows()
     defines.CMAKE_MAKE_PROGRAM = info.makeProgram
+    defines.CMAKE_VERBOSE_MAKEFILE = 'ON'
     const definesArgs = Object.keys(defines).map(k => `-D${k}=${defines[k]}`)
     const cmakeArgs = ['cmake', 
       ...definesArgs,

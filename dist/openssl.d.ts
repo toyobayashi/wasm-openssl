@@ -20,12 +20,6 @@ declare namespace Module {
   export const HEAPU32: Uint32Array;
   export function _free(ptr: number): void;
   export function _malloc(size: number): number;
-  export function _memalign(boundary: number, size: number): number;
-  export function _memcpy(dest: number, source: number, size: number): number;
-  export function _memset(dest: number, val: number, size: number): number;
-  export function _htonl(hostlong: number): number;
-  export function _htons(hostshort: number): number;
-  export function _ntohs(netshort: number): number;
   
   export class MD5 extends openssl.MD5 {}
   export function md5(data: string | Uint8Array): string;
