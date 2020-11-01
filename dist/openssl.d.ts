@@ -25,6 +25,28 @@ declare namespace Module {
   export function md5(data: string | Uint8Array): string;
 }
 
-declare async function init(): Promise<typeof Module>;
+export declare interface ModuleOptions {
+  arguments?: string[];
+  buffer?: ArrayBuffer | SharedArrayBuffer;
+  wasmMemory?: WebAssembly.Memory;
+  locateFile?: (wasmBinaryPath: string, prefix: string) => string;
+  logReadFiles?: boolean;
+  printWithColors?: boolean;
+  onAbort?: (message: string) => void;
+  onRuntimeInitialized?: () => void;
+  noExitRuntime?: boolean;
+  noInitialRun?: boolean;
+  preInit?: Function;
+  preinitializedWebGLContext?: WebGLRenderingContext;
+  preRun?: Function[];
+  print?: (data: string) => void;
+  printErr?: (data: string) => void;
+  destroy?: (obj: any) => void;
+  getPreloadedPackage?: (remotePackageName: string, remotePackageSize: number) => ArrayBuffer;
+  instantiateWasm?: (imports: WebAssembly.Imports, successCallback: (instance: WebAssembly.Instance) => void) => false | {} | WebAssembly.Instance;
+  onCustomMessage?: (message: any) => void;
+}
+
+declare async function init(options?: ModuleOptions): Promise<typeof Module>;
 
 export default init;

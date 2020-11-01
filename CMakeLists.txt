@@ -19,8 +19,8 @@ target_private_emscripten_options(${TARGET_NAME}
   # -pthread
   --bind
   -sALLOW_MEMORY_GROWTH=1
-  --extern-pre-js
-  ${CMAKE_CURRENT_SOURCE_DIR}/pre.js
+  --js-transform "node \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/transform.js\""
+  --extern-pre-js ${CMAKE_CURRENT_SOURCE_DIR}/pre.js
   --extern-post-js ${CMAKE_CURRENT_SOURCE_DIR}/post.js
 )
 
