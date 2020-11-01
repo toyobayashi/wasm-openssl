@@ -86,7 +86,7 @@ async function invokeCMake (buildDir, defines) {
 async function minify (targetName) {
   const pre = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'pre.js'), 'utf8'), { ecma: 5, compress: false, mangle: true })).code.replace(/__target_name__/g, targetName)
   const post = (await terser.minify(fs.readFileSync(path.join(__dirname, 'scripts', 'post.js'), 'utf8').replace(/"__export_scripts__";/g, fs.readFileSync(path.join(__dirname, 'scripts/export.js'), 'utf8')), { ecma: 5, compress: false, mangle: true })).code
-  const wrapPre = `${pre.substring(0, pre.length - 2)},function(require,process){var s=document.currentScript.src;function c(Module){`
+  const wrapPre = `${pre.substring(0, pre.length - 2)},function(require,process){var s='';try{s=document.currentScript.src}catch(_){};function c(Module){`
   const wrapPost = `return Module}return ${post}});`
   const files = [{
     path: path.join(__dirname, 'post.js'),
