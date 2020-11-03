@@ -46,6 +46,7 @@ async function invokeCMake (buildDir, defines) {
     await spawn('emcmake.bat', cmakeArgs, buildDir)
     await spawn('cmake', ['--build', '.'], buildDir)
   } else {
+    const definesArgs = Object.keys(defines).map(k => `-D${k}=${defines[k]}`)
     const cmakeArgs = ['cmake', 
       ...definesArgs,
       '-G', 'Unix Makefiles', path.relative(buildDir, cwd)
