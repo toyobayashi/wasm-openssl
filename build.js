@@ -7,6 +7,8 @@ const terser = require('terser')
 
 const cwd = process.cwd()
 
+const { which } = require('./scripts/which.js')
+
 function spawn (command, args, cwdPath, stdin) {
   const argsString = args.map(a => a.indexOf(' ') !== -1 ? ('"' + a + '"') : a).join(' ')
   console.log(`[spawn] ${cwdPath}${process.platform === 'win32' ? '>' : '$'} ${command} ${argsString}`)
@@ -28,51 +30,21 @@ function spawn (command, args, cwdPath, stdin) {
   return p
 }
 
-function findMakeOnWindows () {
-  const check = [
-    'C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build',
-    'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build'
-  ]
-  const vcvars = process.arch === 'x64' ? 'vcvars64.bat' : 'vcvars32.bat'
-  for (let i = 0; i < check.length; i++) {
-    const p = check[i]
-    if (fs.existsSync(p)) {
-      return {
-        vcvars: path.join(p, vcvars),
-        makeProgram: 'nmake',
-        generator: 'NMake Makefiles'
-      }
-    }
-  }
-  return {
-    vcvars: '',
-    makeProgram: 'make',
-    generator: 'MinGW Makefiles'
-  }
-}
+
 
 async function invokeCMake (buildDir, defines) {
   fs.mkdirSync(buildDir, { recursive: true })
 
   if (process.platform === 'win32') {
-    const info = findMakeOnWindows()
-    defines.CMAKE_MAKE_PROGRAM = info.makeProgram
-    defines.CMAKE_VERBOSE_MAKEFILE = 'ON'
+    const nmakePath = which('nmake')
+    defines.CMAKE_MAKE_PROGRAM = nmakePath ? 'nmake' : 'make'
     const definesArgs = Object.keys(defines).map(k => `-D${k}=${defines[k]}`)
     const cmakeArgs = ['cmake', 
       ...definesArgs,
-      '-G', info.generator, path.relative(buildDir, cwd)
+      '-G', nmakePath ? 'NMake Makefiles' : 'MinGW Makefiles', path.relative(buildDir, cwd)
     ]
     await spawn('emcmake.bat', cmakeArgs, buildDir)
-    if (info.vcvars) {
-      const p = spawn('cmd', ['/k', `@echo off`], buildDir, 'pipe')
-      p.cp.stdin.write(`call "${info.vcvars}"\r\n`)
-      p.cp.stdin.write(`cmake --build .\r\n`)
-      p.cp.stdin.write('exit %ERRORLEVEL%\r\n')
-      await p
-    } else {
-      await spawn('cmake', ['--build', '.'], buildDir)
-    }
+    await spawn('cmake', ['--build', '.'], buildDir)
   } else {
     const cmakeArgs = ['cmake', 
       ...definesArgs,
@@ -114,6 +86,7 @@ async function main () {
   try {
     await invokeCMake(cmakeoutdir, {
       CMAKE_BUILD_TYPE: mode,
+      CMAKE_VERBOSE_MAKEFILE: mode === 'Release' ? 'OFF' : 'ON',
 
       TARGET_NAME: targetName
     })
