@@ -6,7 +6,7 @@
   "module": "./dist/openssl.js",
   "main": "./dist/openssl.js",
   "scripts": {
-    "build": "node ./build.js"
+    "build": "cgen rebuild -e"
   },
   "keywords": [
     "wasm",
@@ -26,12 +26,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "@tybys/embuild": "^0.0.3",
+    "@tybys/cgen": "^0.3.1",
     "crypto-js": "^4.0.0",
-    "terser": "^5.3.8",
     "webpack": "^4.44.2"
-  },
-  "dependencies": {
-    "@tybys/native-require": "^3.0.0"
   }
 }
