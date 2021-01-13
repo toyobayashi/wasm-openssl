@@ -1,8 +1,10 @@
 #!/bin/bash
 
-wget https://www.openssl.org/source/openssl-1.1.1h.tar.gz
-tar xf openssl-1.1.1h.tar.gz
-cd openssl-1.1.1h
+opensslver="1.1.1i"
+
+wget "https://www.openssl.org/source/openssl-$opensslver.tar.gz"
+tar xf "openssl-$opensslver.tar.gz"
+cd "openssl-$opensslver"
 
 emconfigure ./Configure linux-generic64 no-shared no-threads --prefix=$EMSDK/upstream/emscripten/system
 
@@ -15,4 +17,4 @@ rm -rf $EMSDK/upstream/emscripten/system/include/openssl
 cp -R include/openssl $EMSDK/upstream/emscripten/system/include
 cp libcrypto.a libssl.a $EMSDK/upstream/emscripten/system/lib
 cd ..
-rm -rf openssl-1.1.1h*
+rm -rf "openssl-$opensslver*"
