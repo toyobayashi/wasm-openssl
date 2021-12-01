@@ -26,7 +26,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@tybys/cgen": "^0.5.1",
+    "@tybys/cgen": "^0.9.0",
     "crypto-js": "^4.0.0",
     "webpack": "^4.44.2"
   }

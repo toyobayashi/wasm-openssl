@@ -22,7 +22,7 @@ module.exports = defineFunctionConfig(function (_options, { isDebug }) {
         sources: [
           './src/*.cpp'
         ],
-        wrapScript: './scripts/export.js',
+        emwrap: {},
         compileOptions: [
           ...commonFlags
         ],
