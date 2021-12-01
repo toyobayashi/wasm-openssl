@@ -7,9 +7,9 @@
     buf.set(require('crypto').randomBytes(buf.byteLength))
   }).bind(globalThis.crypto)
   const init = openssl.default
-  init().then(mod => {
+  init().then(({ Module }) => {
     console.log(openssl)
-    console.log(mod)
+    console.log(Module)
 
     /* const wordArrayToUint8Array = (wordArray) => {
       var words = wordArray.words
@@ -41,7 +41,7 @@
     }
     // console.log(openssl.md5(buf))
     console.time('wasm')
-    const md5 = new mod.MD5()
+    const md5 = new Module.MD5()
     console.log(md5)
     for (let i = 0; i < R; i++) {
       md5.update(buf.slice(i * B, (i + 1) * B))

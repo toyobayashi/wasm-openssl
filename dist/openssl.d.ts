@@ -1,14 +1,5 @@
 export as namespace openssl;
 
-export declare class MD5 {
-  update(data: string | Uint8Array): void;
-  final(): Uint8Array;
-  digest(): string;
-  delete(): void;
-}
-
-export declare function md5(data: string | Uint8Array): string;
-
 declare namespace Module {
   export const HEAP8: Int8Array;
   export const HEAP16: Int16Array;
@@ -21,7 +12,12 @@ declare namespace Module {
   export function _free(ptr: number): void;
   export function _malloc(size: number): number;
   
-  export class MD5 extends openssl.MD5 {}
+  export class MD5 {
+    update(data: string | Uint8Array): void;
+    final(): Uint8Array;
+    digest(): string;
+    delete(): void;
+  }
   export function md5(data: string | Uint8Array): string;
 }
 
