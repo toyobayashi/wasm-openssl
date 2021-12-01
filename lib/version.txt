@@ -1,2 +1,2 @@
-emscripten: 2.0.12
-openssl: 1.1.1i
+emscripten: 3.0.0
+openssl: 1.1.1l
