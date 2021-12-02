@@ -2,14 +2,17 @@
 
 (function () {
   const CryptoJS = globalThis.CryptoJS || require('crypto-js')
-  const openssl = globalThis.openssl || require('..')
+  const openssl = globalThis.openssl || require('../.cgenbuild/Release/openssl.js')
+  const opensslbinding = globalThis.opensslbinding || require('../.cgenbuild/Release/opensslbinding.js')
   const getRandomValues = ((globalThis.crypto && globalThis.crypto.getRandomValues) || function (buf) {
     buf.set(require('crypto').randomBytes(buf.byteLength))
   }).bind(globalThis.crypto)
-  const init = openssl.default
-  init().then(({ Module }) => {
+  Promise.all([
+    openssl.default(),
+    opensslbinding.default()
+  ]).then(([{ Module: Module1 }, { Module: Module2 }]) => {
     console.log(openssl)
-    console.log(Module)
+    // console.log(Module1)
 
     /* const wordArrayToUint8Array = (wordArray) => {
       var words = wordArray.words
@@ -40,18 +43,51 @@
       getRandomValues(buf.subarray(i * MAX, (i + 1) * MAX))
     }
     // console.log(openssl.md5(buf))
-    console.time('wasm')
-    const md5 = new Module.MD5()
-    console.log(md5)
+
+    ;(function () {
+      console.time('wasm raw pointer')
+      const size = Module1._sizeof_md5_ctx()
+      const ctx = Module1._malloc(size)
+      Module1._MD5_Init(ctx)
+      const chunk = Module1._malloc(B)
+      const res = Module1._malloc(16)
+      for (let i = 0; i < R; i++) {
+        Module1.HEAPU8.set(buf.slice(i * B, (i + 1) * B), chunk)
+        Module1._MD5_Update(ctx, chunk, B)
+      }
+      Module1._MD5_Final(res, ctx)
+      let s = ''
+      for (let i = 0; i < 16; i++) {
+        s += Module1.HEAPU8[res + i].toString(16)
+      }
+      Module1._free(res)
+      Module1._free(chunk)
+      Module1._free(ctx)
+      console.log(s)
+      console.timeEnd('wasm raw pointer')
+    })()
+
+    console.time('wasm embind')
+    const md5 = new Module1.MD5()
+    // console.log(md5)
     for (let i = 0; i < R; i++) {
       md5.update(buf.slice(i * B, (i + 1) * B))
     }
     console.log(md5.digest())
-    console.timeEnd('wasm')
     md5.delete()
+    console.timeEnd('wasm embind')
 
-    console.time('js')
+    console.time('wasm napi')
+    const md52 = new Module2.emnapiExports.MD5Binding()
+    // console.log(md52)
+    for (let i = 0; i < R; i++) {
+      md52.update(buf.slice(i * B, (i + 1) * B))
+    }
+    console.log(md52.digest())
+    console.timeEnd('wasm napi')
+
+    console.time('crypto js')
     console.log(CryptoJS.MD5(uint8ArrayToWordArray(buf)).toString())
-    console.timeEnd('js')
+    console.timeEnd('crypto js')
   })
 })()

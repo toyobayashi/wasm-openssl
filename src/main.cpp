@@ -1,9 +1,14 @@
 #include <cstring>
+#include <emscripten.h>
 #include "md5.hpp"
 
 #include <emscripten/bind.h>
 
 namespace wasmopenssl {
+
+extern "C" EMSCRIPTEN_KEEPALIVE size_t sizeof_md5_ctx() {
+  return sizeof(MD5_CTX);
+}
 
 class JSMD5 {
  private:

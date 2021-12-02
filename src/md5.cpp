@@ -6,14 +6,14 @@
 namespace wasmopenssl {
 
 MD5::MD5() {
-  ctx_ = (MD5_CTX*)malloc(sizeof(MD5_CTX));
+  ctx_ = new MD5_CTX;
   MD5_Init(ctx_);
 }
 
 MD5::MD5(const MD5& other) {
   if (this == &other) return;
-  ctx_ = (MD5_CTX*)malloc(sizeof(MD5_CTX));
-  memcpy(ctx_, other.ctx_, sizeof(MD5_CTX));
+  ctx_ = new MD5_CTX;
+  *ctx_ = *other.ctx_;
 }
 
 MD5::MD5(MD5&& other) {
@@ -22,7 +22,7 @@ MD5::MD5(MD5&& other) {
 }
 MD5::~MD5() {
   if (ctx_ != nullptr) {
-    free(ctx_);
+    delete ctx_;
     ctx_ = nullptr;
   }
 }

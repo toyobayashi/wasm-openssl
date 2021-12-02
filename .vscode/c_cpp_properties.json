@@ -2,10 +2,11 @@
   "env": {
     "includePath": [
       "${default}",
+      "${workspaceFolder}/node_modules/@tybys/emnapi/include",
       "${env:EMSDK}/upstream/emscripten/system/include",
       "${workspaceFolder}/include"
     ],
-    "defines": []
+    "defines": ["NODE_ADDON_API_ENABLE_MAYBE"]
   },
   "configurations": [
     {
@@ -14,9 +15,9 @@
         "${defines}"
       ],
       "compilerPath": "${env:EMSDK}/upstream/emscripten/emcc.bat",
-      "intelliSenseMode": "clang-x64",
+      "intelliSenseMode": "clang-x86",
       "cStandard": "c11",
-      "cppStandard": "c++11",
+      "cppStandard": "c++17",
       "includePath": [
         "${includePath}"
       ]
