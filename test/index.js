@@ -2,8 +2,8 @@
 
 (function () {
   const CryptoJS = globalThis.CryptoJS || require('crypto-js')
-  const openssl = globalThis.openssl || require('../.cgenbuild/Release/openssl.js')
-  const opensslbinding = globalThis.opensslbinding || require('../.cgenbuild/Release/opensslbinding.js')
+  const openssl = globalThis.openssl || require('../dist/openssl.js')
+  const opensslbinding = globalThis.opensslbinding || require('../dist/opensslbinding.js')
   const getRandomValues = ((globalThis.crypto && globalThis.crypto.getRandomValues) || function (buf) {
     buf.set(require('crypto').randomBytes(buf.byteLength))
   }).bind(globalThis.crypto)
@@ -11,7 +11,7 @@
     openssl.default(),
     opensslbinding.default()
   ]).then(([{ Module: Module1 }, { Module: Module2 }]) => {
-    console.log(openssl)
+    // console.log(openssl)
     // console.log(Module1)
 
     /* const wordArrayToUint8Array = (wordArray) => {
